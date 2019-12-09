@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-import inspect
+from functools import partial
 from typing import Tuple, List, Dict
 import asyncio
+import inspect
 
 Val = Tuple[int, int]
 
@@ -156,7 +157,7 @@ class IntPuter:
         }
     }
 
-    def decode_instruction(self, instruction: int) -> Tuple[Dict, List[Val]]:
+    def decode_instruction(self, instruction: int) -> Tuple[partial, int]:
         op_code: int = instruction % 100
         instr: Dict = self.INSTRUCTIONS[op_code]
         modes: List[int] = [
@@ -164,7 +165,7 @@ class IntPuter:
             for x in range(instr['size'] - 1)
         ]
         params: List[Val] = list(zip(modes, self.code[self.ptr + 1:self.ptr + instr['size']]))
-        return instr, params
+        return partial(instr['function'], self, *params), instr['size']
 
     def load_val(self, val_spec: Val) -> int:
         mode, loc = val_spec
@@ -213,16 +214,18 @@ class IntPuter:
         while not self.ended:
             # lookup and call instruction
             try:
-                instruction, params = self.decode_instruction(self.code[self.ptr])
+                instruction, size = self.decode_instruction(self.code[self.ptr])
             except IndexError:
                 print ("Instruction Pointer:", self.ptr, len(self.code))
             else:
-                result = instruction['function'](self, *params)
+                result = instruction()
+                # Some operations are async, but not all
                 if inspect.isawaitable(result):
                     result = await result
 
+                # If result is True, a jump occured so don't update the function pointer
                 if not result:
-                    self.ptr += instruction['size']
+                    self.ptr += size
 
         return self.code
 
