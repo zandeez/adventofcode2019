@@ -62,7 +62,7 @@ class IntPuter:
         if self.input_pipe:
             val = await self.input_pipe.dequeue()
         else:
-            val = int(input_pipe("Input Required:"))
+            val = int(input("Input Required:"))
         self.set_value(r, val)
 
     def op_output(self, i: Val) -> None:
