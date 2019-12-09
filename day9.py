@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 from inputer import IntPuter, Pipe
 
-
 with open('day9.txt', 'r') as f:
     code = f.readline()
 

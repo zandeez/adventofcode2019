@@ -42,13 +42,13 @@ class IntPuter:
     # Whether or not the program has ended
     ended: bool = False
     # I/O pipes
-    input: Pipe = None
-    output: Pipe = None
+    input_pipe: Pipe = None
+    output_pipe: Pipe = None
 
     def __init__(self, code: str, input_pipe: Pipe = None, output_pipe: Pipe = None):
         self.__code = [int(x) for x in code.split(',')]
-        self.input = input_pipe
-        self.output = output_pipe
+        self.input_pipe = input_pipe
+        self.output_pipe = output_pipe
         self.reset()
 
     # Instruction Definitions
@@ -59,16 +59,16 @@ class IntPuter:
         self.set_value(r, self.load_val(o1) * self.load_val(o2))
 
     async def op_input(self, r: Val) -> None:
-        if self.input:
-            val = await self.input.dequeue()
+        if self.input_pipe:
+            val = await self.input_pipe.dequeue()
         else:
-            val = int(input("Input Required:"))
+            val = int(input_pipe("Input Required:"))
         self.set_value(r, val)
 
     def op_output(self, i: Val) -> None:
         val = self.load_val(i)
-        if self.output is not None:
-            self.output.enqueue(val)
+        if self.output_pipe is not None:
+            self.output_pipe.enqueue(val)
         else:
             print(val)
 
