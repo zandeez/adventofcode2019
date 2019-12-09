@@ -194,11 +194,10 @@ class IntPuter:
         self.check_bounds(addr)
         return addr
 
-    def check_bounds(self, addr:int) -> None:
+    def check_bounds(self, addr: int) -> None:
         if addr >= len(self.code):
             extra = addr - len(self.code) + 1
-            self.code.extend([0]*extra)
-
+            self.code.extend([0] * extra)
 
     def reset(self) -> None:
         self.code = self.__code[::]
@@ -216,14 +215,14 @@ class IntPuter:
             try:
                 instruction, size = self.decode_instruction(self.code[self.ptr])
             except IndexError:
-                print ("Instruction Pointer:", self.ptr, len(self.code))
+                print("Instruction Pointer:", self.ptr, len(self.code))
             else:
                 result = instruction()
                 # Some operations are async, but not all
                 if inspect.isawaitable(result):
                     result = await result
 
-                # If result is True, a jump occured so don't update the function pointer
+                # If result is True, a jump occurred so don't update the function pointer
                 if not result:
                     self.ptr += size
 
