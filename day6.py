@@ -12,18 +12,6 @@ with open('day6.txt', 'r') as f:
         planets[src].append(dst)
         planets[dst].append(src)
 
-total = 0
-visited = set()
-queue = [('COM', 0)]
-while queue:
-    src, dist = queue.pop(0)
-    visited.add(src)
-    dist += 1
-    for p in [x for x in planets[src] if x not in visited]:
-        total += dist
-        queue.append((p, dist))
-
-
 def bfs(start='COM', target=None):
     total = 0
     visited = set()
