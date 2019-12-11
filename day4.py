@@ -22,18 +22,18 @@ def contains_double(num):
 
 def contains_double_exact(num):
     s = str(num)
-    for x in range(0, 10):
+    for x in range(10):
         dbl = str(x * 11)
         trp = str(x * 111)
-        if dbl in s and not trp in s:
+        if dbl in s and trp not in s:
             return True
     return False
 
 
 # Part 1
-l = [x for x in range(*r) if incr_only(x) and contains_double(x)]
-print(len(l))
+codes = [x for x in range(*r) if incr_only(x) and contains_double(x)]
+print(len(codes))
 
 # Part 2
-l = [x for x in range(*r) if incr_only(x) and contains_double_exact(x)]
-print(len(l))
+codes = [x for x in range(*r) if incr_only(x) and contains_double_exact(x)]
+print(len(codes))

@@ -19,7 +19,7 @@ best_result = 0
 best_settings = []
 
 for p in permutations(range(0, 5)):
-    for c in computers:
+    for i, c in enumerate(computers):
         c.reset()
         c.input_pipe.clear()
         c.input_pipe.enqueue(p[i])
@@ -44,7 +44,7 @@ best_settings = []
 loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
 for p in permutations(range(5, 10)):
-    for c in computers:
+    for i, c in enumerate(computers):
         c.reset()
         c.input_pipe.clear()
         c.input_pipe.enqueue(p[i])

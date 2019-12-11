@@ -19,14 +19,14 @@ class Pipe:
         await self.semaphore.acquire()
         return self.data.pop(0)
 
-    def peek(self):
+    def peek(self) -> int:
         return self.data[0]
 
-    def enqueue(self, val: int):
+    def enqueue(self, val: int) -> None:
         self.data.append(val)
         self.semaphore.release()
 
-    def clear(self):
+    def clear(self) -> None:
         self.data.clear()
         self.semaphore = asyncio.Semaphore(0)
 

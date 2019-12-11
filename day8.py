@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-dimensions = [25, 6]
-size = dimensions[0] * dimensions[1]
+w, h = 25, 6
+size = w * h
 
 with open('day8.txt', 'r') as f:
     d = [int(x) for x in f.readline().strip()]
@@ -10,30 +10,28 @@ layers = [
     d[x:x + size] for x in range(0, len(d), size)
 ]
 
-best_layer = None
-best_score = size
-for layer in layers:
-    zeros = len([x for x in layer if x == 0])
-    if zeros < best_score:
-        best_score = zeros
-        best_layer = layer
 
-print("Part 1:", len([x for x in best_layer if x == 1]) * len([x for x in best_layer if x == 2]))
+def count_instances(enum, val):
+    return len([x for x in enum if x == val])
 
-image = [0]*size
+
+best_layer = sorted(layers, key=lambda layer: count_instances(layer, 0))[0]
+
+print("Part 1:", count_instances(best_layer, 1) * count_instances(best_layer, 2))
+
+image = [0] * size
 layers.reverse()
 for layer in layers:
-    for i in range(0, size):
-        if layer[i] != 2:
-            image[i] = layer[i]
+    for i, v in enumerate(layer):
+        if v != 2:
+            image[i] = v
 
 print("Part 2:")
 
-for x in range(dimensions[1]):
-    for y in range(dimensions[0]):
-        if image[x*dimensions[0]+y] == 1:
+for y in range(h):
+    for x in range(w):
+        if image[y * w + x] == 1:
             print("O", end='')
         else:
             print(" ", end='')
     print()
-

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+
 def calc_fuel_mass(x):
     return x // 3 - 2
 
@@ -13,7 +14,7 @@ def calc_fuel_fuel(x):
 
 
 with open('day1.txt', 'r') as f:
-    mass_list = [int(l) for l in f.readlines()]
+    mass_list = [int(line) for line in f.readlines()]
 
 print("Part 1:", sum(calc_fuel_mass(m) for m in mass_list))
 print("Part 2:", sum(calc_fuel_fuel(m) for m in mass_list))
