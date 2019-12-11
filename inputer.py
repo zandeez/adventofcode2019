@@ -208,7 +208,6 @@ class IntPuter:
     def set_loc(self, loc: int, val: int) -> None:
         self.code[loc] = val
 
-    @asyncio.coroutine
     async def run_async(self):
         while not self.ended:
             # lookup and call instruction
