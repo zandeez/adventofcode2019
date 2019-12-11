@@ -1,41 +1,44 @@
 #!/usr/bin/env python3
 import asyncio
-from itertools import product
 from typing import Dict, Tuple
 
 from inputer import IntPuter, Pipe
 
+Location = Tuple[int, int]
+
 
 class Robot:
-    def __init__(self, input_pipe, output_pipe):
-        self.input_pipe = input_pipe
-        self.output_pipe = output_pipe
-        self.reset()
+    def __init__(self, in_pipe: Pipe, out_pipe: Pipe):
+        self.input_pipe: Pipe = in_pipe
+        self.output_pipe: Pipe = out_pipe
+        self.location: Location = (0, 0)
+        self.direction: int = 0
+        self.painted: Dict[Location, int] = {}
 
     def reset(self):
-        self.x, self.y, self.direction = 0, 0, 0
-        self.painted: Dict[Tuple[int, int], int] = {}
+        self.location: Location = (0, 0)
+        self.direction: int = 0
+        self.painted: Dict[Location, int] = {}
 
     def step(self):
         if self.direction == 0:
-            self.y -= 1
+            self.location = (self.location[0], self.location[1] - 1)
         elif self.direction == 1:
-            self.x += 1
+            self.location = (self.location[0] + 1, self.location[1])
         elif self.direction == 2:
-            self.y += 1
+            self.location = (self.location[0], self.location[1] + 1)
         else:
-            self.x -= 1
+            self.location = (self.location[0] - 1, self.location[1])
 
     async def robot(self):
         while True:
             # Read current space into input queue
-            location = (self.x, self.y)
-            current = self.painted.get(location, 0)
+            current = self.painted.get(self.location, 0)
             # Send to IntPuter
             self.input_pipe.enqueue(current)
             # Read new colour and do paint
             paint = await self.output_pipe.dequeue()
-            self.painted[location] = paint
+            self.painted[self.location] = paint
             # Read move
             move = await self.output_pipe.dequeue()
 
@@ -62,29 +65,34 @@ loop.run_until_complete(computer.run_async())
 
 print("Part 1:", len(robot.painted))
 
+# Reset systems
 input_pipe.clear()
 output_pipe.clear()
 computer.reset()
 robot.reset()
+# Set initial point to a white square
 robot.painted[(0, 0)] = 1
+# Run tasks
 loop.create_task(robot.robot())
 loop.run_until_complete(computer.run_async())
 
+# Calculate image size and offsets
 xs, ys = [set(x) for x in zip(*robot.painted.keys())]
 minx, maxx = min(xs), max(xs)
 miny, maxy = min(ys), max(ys)
 xo = 0 - minx
 yo = 0 - miny
+w, h = abs(maxx - minx) + 1, abs(maxy - miny) + 1
 
-picture = [
-              [' '] * (maxx - minx + 1)
-          ] * (maxy - miny + 1)
+# Setup Picture
+picture = [' '] * w * h
 
-for x, y in product(xs, ys):
-    if robot.painted.get((x, y), 0):
-        picture[y][x] = '#'
+for k, v in sorted(robot.painted.items()):
+    x, y = k
+    if v == 1:
+        picture[x + y * w] = '#'
 
 print("Part 2:")
 
-for row in picture:
-    print(''.join(row))
+for x in range(0, w * h, w):
+    print(''.join(picture[x:x + w]))
