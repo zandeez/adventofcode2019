@@ -5,6 +5,8 @@ from itertools import combinations, count
 from math import gcd
 from typing import List, Dict
 
+def lcm(denominators):
+    return reduce(lambda a, b: a * b // gcd(a, b), denominators)
 
 @dataclass
 class HistoryScalar:
@@ -75,6 +77,9 @@ class Vector:
         return all(
             x.period for x in [self.x, self.y, self.z]
         )
+
+    def lcm(self):
+        return lcm([x.period for x in [self.x, self.y, self.z]])
 
 
 @dataclass
@@ -180,19 +185,8 @@ system = System(planets)
 while not system.complete():
     system.step()
 
-print(system)
-# while running:
-#     for i, planet in enumerate(running):
-#         e = hash(planet)
-#         if e in planet['states']:
-#             del running[i]
-#             planet['year'] = system.steps - planet['states'][e]
-#         planet['states'][e] = system.steps
-#     system.step()
-#
-#
-# def lcm(denominators):
-#    return reduce(lambda a, b: a * b // gcd(a, b), denominators)
 
 
-print("Part 2:", system.steps)
+
+
+print("Part 2:", lcm([x.position.lcm() for x in system.planets]))
