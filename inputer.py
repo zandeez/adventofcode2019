@@ -66,12 +66,14 @@ class IntPuter:
             val = int(input("Input Required:"))
         self.set_value(r, val)
 
-    def op_output(self, i: Val) -> None:
+    async def op_output(self, i: Val) -> None:
         val = self.load_val(i)
         if self.output_pipe is not None:
             self.output_pipe.enqueue(val)
+            await asyncio.sleep(0)
         else:
             print(val)
+
 
     def op_jump_true(self, i: Val, o: Val) -> bool:
         if self.load_val(i):
