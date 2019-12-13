@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from typing import List
 
 from inputer import IntPuter, Pipe
 import asyncio
@@ -6,20 +7,19 @@ import asyncio
 
 class Display(Pipe):
 
-    def __init__(self, input_pipe):
+    def __init__(self, input_pipe: Pipe):
         super().__init__()
-        self.input_pipe = input_pipe
-        self.state = []
-        self.score = 0
-        self.location = 0
-        self.ball = 0
+        self.input_pipe: Pipe = input_pipe
+        self.state: List[List[int]] = []
+        self.score: int = 0
+        self.location: int = 0
+        self.ball: int = 0
 
-    def remaining_blocks(self):
+    def remaining_blocks(self) -> int:
         return sum([len([x for x in row if x == 2]) for row in self.state])
 
     async def dequeue(self) -> int:
-        move = int((self.location < self.ball) - (self.location > self.ball))
-        return move
+        return int((self.location < self.ball) - (self.location > self.ball))
 
     async def run(self):
         first_run = True
@@ -28,7 +28,7 @@ class Display(Pipe):
             y = await self.input_pipe.dequeue()
             o = await self.input_pipe.dequeue()
 
-            if o == 2:
+            if first_run and o == 2:
                 first_run = False
 
             if x < 0:
