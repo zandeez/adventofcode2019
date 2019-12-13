@@ -1,63 +1,20 @@
 #!/usr/bin/env python3
 from dataclasses import dataclass, field
 from functools import reduce
-from itertools import combinations, count
+from itertools import combinations
 from math import gcd
-from typing import List, Dict
+from typing import List, Set
+
 
 def lcm(denominators):
     return reduce(lambda a, b: a * b // gcd(a, b), denominators)
 
-@dataclass
-class HistoryScalar:
-    history: Dict[int, int] = field(default_factory=dict, repr=False)
-    period: int = field(default=0, repr=False)
-    value: int = 0
-
-    def store_history(self, steps):
-        if self.value in self.history:
-            self.period = steps - self.history[self.value]
-        else:
-            self.history[self.value] = steps
-
-    def __set__(self, instance, value):
-        instance.value = value
-
-    def __iadd__(self, other):
-        if isinstance(other, HistoryScalar):
-            self.value += other.value
-        else:
-            self.value += other
-        return self
-
-    def __isub__(self, other):
-        if isinstance(other, HistoryScalar):
-            self.value -= other.value
-        else:
-            self.value -= other
-        return self
-
-    def __repr__(self):
-        return str(self.value)
-
-    def __abs__(self):
-        return abs(self.value)
-
-    def __gt__(self, other):
-        return self.value > other.value
-
-    def __lt__(self, other):
-        return self.value < other.value
-
-    def __get__(self, instance, owner):
-        return instance.value
-
 
 @dataclass
 class Vector:
-    x: HistoryScalar = field(default_factory=HistoryScalar)
-    y: HistoryScalar = field(default_factory=HistoryScalar)
-    z: HistoryScalar = field(default_factory=HistoryScalar)
+    x: int = 0
+    y: int = 0
+    z: int = 0
 
     def __iadd__(self, other):
         self.x += other.x
@@ -68,24 +25,19 @@ class Vector:
     def energy(self) -> int:
         return abs(self.x) + abs(self.y) + abs(self.z)
 
-    def store_history(self, steps):
-        self.x.store_history(steps)
-        self.y.store_history(steps)
-        self.z.store_history(steps)
-
-    def complete(self):
-        return all(
-            x.period for x in [self.x, self.y, self.z]
-        )
-
-    def lcm(self):
-        return lcm([x.period for x in [self.x, self.y, self.z]])
-
 
 @dataclass
 class Planet:
     position: Vector = field(default_factory=Vector)
     velocity: Vector = field(default_factory=Vector)
+
+    x_set: Set = field(default_factory=set)
+    y_set: Set = field(default_factory=set)
+    z_set: Set = field(default_factory=set)
+
+    x_cycle: bool = False
+    y_cycle: bool = False
+    z_cycle: bool = False
 
     def apply_velocity(self):
         self.position += self.velocity
@@ -117,12 +69,32 @@ class Planet:
         pass
 
     def store_history(self, steps: int):
-        self.position.store_history(steps)
-        self.velocity.store_history(steps)
+        x_state = (self.position.x, self.velocity.x)
+        if x_state in self.x_set:
+            self.x_cycle = True
+        else:
+            self.x_set.add(x_state)
+
+        y_state = (self.position.y, self.velocity.y)
+        if y_state in self.y_set:
+            self.y_cycle = True
+        else:
+            self.y_set.add(y_state)
+
+        z_state = (self.position.z, self.velocity.z)
+        if z_state in self.z_set:
+            self.z_cycle = True
+        else:
+            self.z_set.add(z_state)
 
     def complete(self):
         return all(
-            v.complete() for v in [self.position, self.velocity]
+            [self.x_cycle, self.y_cycle, self.z_cycle]
+        )
+
+    def lcm(self):
+        return lcm(
+            [len(x)-1 for x in [self.x_set, self.y_set, self.z_set]]
         )
 
 
@@ -145,14 +117,19 @@ class System:
     def step(self):
         self.apply_gravity()
         self.apply_velocity()
-        for p in planets:
+        for p in self.planets:
             p.store_history(self.steps)
         self.steps += 1
 
     def complete(self):
         return all(
-            p.complete() for p in planets
+            p.complete() for p in self.planets
         )
+
+    def lcm(self):
+        return lcm([
+            p.lcm() for p in self.planets
+        ])
 
 
 def load_planets():
@@ -164,7 +141,7 @@ def load_planets():
             items = li.split(",")
             for item in items:
                 k, v = item.split("=")
-                pos.__getattribute__(k.strip()).value = int(v)
+                setattr(pos, k.strip(), int(v))
             r_planets.append(Planet(position=pos))
     return r_planets
 
@@ -185,8 +162,4 @@ system = System(planets)
 while not system.complete():
     system.step()
 
-
-
-
-
-print("Part 2:", lcm([x.position.lcm() for x in system.planets]))
+print("Part 2:", "FUCK THIS")
