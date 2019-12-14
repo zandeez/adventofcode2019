@@ -102,7 +102,7 @@ print("Part 1:", pt1)
 target = 1000000000000
 current = target // pt1
 ore_used = 0
-while ore_used < 1000000000000:
+while ore_used < target:
     ore_used = reactor.make_fuel_target(current)
     remaining_ore = target - ore_used
     extra = remaining_ore // pt1
