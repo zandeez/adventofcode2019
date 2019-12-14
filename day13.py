@@ -16,7 +16,7 @@ class Display(Pipe):
         self.ball: int = 0
 
     def remaining_blocks(self) -> int:
-        return sum([len([x for x in row if x == 2]) for row in self.state])
+        return sum([row.count(2) for row in self.state])
 
     async def dequeue(self) -> int:
         return int((self.location < self.ball) - (self.location > self.ball))
