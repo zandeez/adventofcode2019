@@ -2,8 +2,7 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from itertools import count
-from sys import stderr
-from typing import List, Dict, Tuple
+from typing import List, Dict
 
 
 @dataclass
