@@ -112,7 +112,7 @@ class Droid:
 
     def shortest_route(self, destination: Location, start: Location = (0, 0)):
         """
-        Breadth-first search to find the shorted route between any two points, start location defaults to (0, 0) if not
+        Breadth-first search to find the shortest route between any two points, start location defaults to (0, 0) if not
         specified. map_area should be called before calling this method.
         """
         # List of locations to test and their current path distance

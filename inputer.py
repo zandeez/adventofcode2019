@@ -74,7 +74,6 @@ class IntPuter:
         else:
             print(val)
 
-
     def op_jump_true(self, i: Val, o: Val) -> bool:
         if self.load_val(i):
             self.ptr = self.load_val(o)
