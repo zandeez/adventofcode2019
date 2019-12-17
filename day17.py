@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 from inputer import IntPuter, Pipe
 from day15 import Droid
@@ -56,8 +56,8 @@ class Day17Droid(Droid):
             (location[0] - 1, location[1]),
         ]
 
-    def walk_scaffold(self):
-        instructions = []
+    def walk_scaffold(self) -> str:
+        instructions: str = ''
         count = 0
         while True:
             next_spaces = dict([(d, l)
@@ -67,7 +67,7 @@ class Day17Droid(Droid):
                 count += 1
                 self.location = next_spaces[self.direction]
             else:
-                instructions.append(count)
+                instructions += str(count)
                 count = 0
                 filtered_next = [(d, l) for d, l in next_spaces.items() if abs(
                     self.direction - d) % 2 == 1]
@@ -75,16 +75,32 @@ class Day17Droid(Droid):
                     break
                 next_dir, next_location = filtered_next.pop(0)
                 if next_dir == 3 and self.direction == 0:
-                    instructions.append("L")
+                    instructions += "L"
                 elif next_dir == 0 and self.direction == 3:
-                    instructions.append("R")
+                    instructions += "R"
                 elif next_dir > self.direction:
-                    instructions.append("R")
+                    instructions += "R"
                 else:
-                    instructions.append("L")
+                    instructions += "L"
                 self.direction = next_dir
 
-        return [x for x in instructions if x != 0]
+        return instructions.strip('0')
+
+    def compress_commands(self):
+        instructions = self.walk_scaffold()
+        current_replacement = ord('A')
+        commands: Dict[str, str] = {}
+        while len(instructions.strip('ABC')):
+            test_str = instructions.strip('ABC')
+            for i in range(1, len(test_str)):
+                if (test_str[-i:] not in test_str[:-i]) and i > 0 and 'A' not in test_str and 'B' not in test_str and 'C' not in test_str:
+                    comp_str = test_str[:i-1]
+                    commands[chr(current_replacement)] = comp_str
+                    instructions = instructions.replace(comp_str, chr(current_replacement))
+                    current_replacement += 1
+                    break
+
+        return instructions
 
 
 output_pipe = Pipe()
@@ -96,4 +112,4 @@ droid = Day17Droid()
 droid.load_grid(computer.output_pipe.data)
 intersections = droid.find_intersections()
 print("Part 1:", sum([x * y for x, y in intersections]))
-print(droid.walk_scaffold())
+print(droid.compress_commands())
