@@ -84,7 +84,7 @@ class Day17Droid(Droid):
                     instructions.append("L")
                 self.direction = next_dir
 
-        return instructions
+        return [x for x in instructions if x != 0]
 
 
 output_pipe = Pipe()
