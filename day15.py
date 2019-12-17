@@ -140,27 +140,27 @@ class Droid:
         # If no route has been found, return last distance value (longest possible distance from origin).
         return distance
 
+if __name__ == "__main__":
+    # Set up asyncio
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    # Communication pipes
+    input_pipe, output_pipe = Pipe(), Pipe()
 
-# Set up asyncio
-loop = asyncio.new_event_loop()
-asyncio.set_event_loop(loop)
-# Communication pipes
-input_pipe, output_pipe = Pipe(), Pipe()
+    # Load IntPuter code
+    with open("day15.txt", "r") as f:
+        computer = IntPuter(f.readline(), input_pipe, output_pipe)
 
-# Load IntPuter code
-with open("day15.txt", "r") as f:
-    computer = IntPuter(f.readline(), input_pipe, output_pipe)
+    # Create Droid instance
+    droid = Droid(input_pipe=output_pipe, output_pipe=input_pipe)
+    # Start computer
+    task = loop.create_task(computer.run_async())
+    # Run until mapping is complete
+    loop.run_until_complete(droid.map_area())
+    # Kill computer
+    task.cancel()
 
-# Create Droid instance
-droid = Droid(input_pipe=output_pipe, output_pipe=input_pipe)
-# Start computer
-task = loop.create_task(computer.run_async())
-# Run until mapping is complete
-loop.run_until_complete(droid.map_area())
-# Kill computer
-task.cancel()
-
-# Shorted route from Origin (0,0) to the oxygen location
-print("Part 1:", droid.shortest_route(droid.oxygen_location, (0, 0)))
-# Longest distance possible from oxygen location. Forces exhaustive BFS by setting an impossible destination.
-print("Part 2:", droid.shortest_route((inf, inf), droid.oxygen_location))
+    # Shorted route from Origin (0,0) to the oxygen location
+    print("Part 1:", droid.shortest_route(droid.oxygen_location, (0, 0)))
+    # Longest distance possible from oxygen location. Forces exhaustive BFS by setting an impossible destination.
+    print("Part 2:", droid.shortest_route((inf, inf), droid.oxygen_location))
