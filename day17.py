@@ -91,25 +91,48 @@ class Day17Droid(Droid):
         current_replacement = ord('A')
         commands: Dict[str, str] = {}
         while len(instructions.strip('ABC')):
+            candidates: List[Tuple[int, str]] = []
             test_str = instructions.strip('ABC')
-            for i in range(1, len(test_str)):
-                if (test_str[-i:] not in test_str[:-i]) and i > 0 and 'A' not in test_str and 'B' not in test_str and 'C' not in test_str:
-                    comp_str = test_str[:i-1]
-                    commands[chr(current_replacement)] = comp_str
-                    instructions = instructions.replace(comp_str, chr(current_replacement))
-                    current_replacement += 1
-                    break
+            for i in range(4, 11):  # Use a minimum length of compression string to 4, going to have 9 comma at the most so at most 10 chars
+                comp_str = test_str[-i:]
+                score = len(comp_str) # * test_str.count(comp_str)
+                candidates.append((score, comp_str))
+            replacement = sorted(candidates, key=lambda x: x[0])[-1][1]
+            commands[chr(current_replacement)] = replacement
+            instructions = instructions.replace(replacement, chr(current_replacement))
+            current_replacement += 1
 
-        return instructions
+        return instructions, commands
 
 
-output_pipe = Pipe()
+input_pipe, output_pipe = Pipe(), Pipe()
 with open("day17.txt", "r") as f:
-    computer = IntPuter(f.readline(), output_pipe=output_pipe)
+    computer = IntPuter(f.readline(), input_pipe, output_pipe)
 
 computer.run()
 droid = Day17Droid()
 droid.load_grid(computer.output_pipe.data)
 intersections = droid.find_intersections()
 print("Part 1:", sum([x * y for x, y in intersections]))
+
+output_pipe.clear()
+computer.reset()
+
+instructions, commands = droid.compress_commands()
+print(instructions, commands)
+
+for i in instructions:
+    input_pipe.enqueue(ord(i))
+input_pipe.enqueue(droid.UNKNOWN)
+for command in ['A', 'B', 'C']:
+    for i in commands[command]:
+        input_pipe.enqueue(ord(i))
+    input_pipe.enqueue(droid.UNKNOWN)
+
+
+computer.set_loc(0, 2)
+computer.run()
+
+print(output_pipe.data)
+
 print(droid.compress_commands())
